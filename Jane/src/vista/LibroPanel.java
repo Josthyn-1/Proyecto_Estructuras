@@ -15,8 +15,9 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.text.Normalizer;
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.Locale;
 
 /**
  * Panel de CRUD de libros.
@@ -63,7 +64,8 @@ public class LibroPanel extends JPanel {
         JPanel panelAcciones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         panelAcciones.setOpaque(false);
         txtBuscar = new JTextField(20);
-        txtBuscar.setToolTipText("Buscar por ID, título, autor, editorial o año");
+        txtBuscar.setToolTipText(
+                "Buscar por ID, título, autor, editorial o año (sin importar tildes ni mayúsculas)");
         txtBuscar.setPreferredSize(new Dimension(240, 36));
 
         JButton btnAgregar = new JButton("+ Agregar libro");
@@ -187,12 +189,28 @@ public class LibroPanel extends JPanel {
     }
 
     private void filtrarTabla() {
-        String texto = txtBuscar.getText().trim();
+        String texto = normalizar(txtBuscar.getText().trim());
         if (texto.isEmpty()) {
             sorter.setRowFilter(null);
         } else {
-            sorter.setRowFilter(RowFilter.regexFilter("(?i)" + Pattern.quote(texto)));
+            sorter.setRowFilter(new RowFilter<DefaultTableModel, Integer>() {
+                @Override
+                public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
+                    for (int columna = 0; columna < entry.getValueCount(); columna++) {
+                        String valor = String.valueOf(entry.getValue(columna));
+                        if (normalizar(valor).contains(texto)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            });
         }
+    }
+
+    private String normalizar(String texto) {
+        String descompuesto = Normalizer.normalize(texto, Normalizer.Form.NFD);
+        return descompuesto.replaceAll("\\p{M}+", "").toLowerCase(Locale.ROOT);
     }
 
     public void buscar(String texto) {
