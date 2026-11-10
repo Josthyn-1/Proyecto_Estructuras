@@ -200,6 +200,30 @@ public class GestionPrestamos {
         return vigentes;
     }
 
+    /**
+     * Lista préstamos devueltos que tienen mora y aún no tienen una factura vigente.
+     *
+     * @throws AccesoDenegadoException si el solicitante no es Cajero ni Administrador.
+     */
+    public List<Prestamo> listarPrestamosConMoraPendiente(Usuario solicitante) {
+        validarCajeroAdministrador(solicitante);
+        List<Prestamo> pendientes = new ArrayList<>();
+        for (Prestamo prestamo : prestamos.values()) {
+            if (prestamo.isActivo() || calcularMulta(prestamo) <= 0) {
+                continue;
+            }
+
+            boolean facturaVigenteExiste = facturas.stream()
+                    .anyMatch(factura -> !factura.isEliminada()
+                            && factura.getIdPrestamo().equals(prestamo.getIdPrestamo()));
+            if (!facturaVigenteExiste) {
+                pendientes.add(prestamo);
+            }
+        }
+        pendientes.sort(Comparator.comparing(Prestamo::getFechaDevolucionReal).reversed());
+        return pendientes;
+    }
+
     public List<Factura> listarHistorialFacturas(Usuario solicitante) {
         validarCajeroAdministrador(solicitante);
         return new ArrayList<>(facturas);
@@ -232,6 +256,22 @@ public class GestionPrestamos {
             }
         }
         return activos;
+    }
+
+    /**
+     * Devuelve los libros del catálogo que no están prestados actualmente.
+     *
+     * @throws AccesoDenegadoException si el solicitante no es Cajero ni Administrador.
+     */
+    public List<Libro> listarLibrosDisponibles(Usuario solicitante) {
+        validarCajeroAdministrador(solicitante);
+        List<Libro> disponibles = new ArrayList<>();
+        for (Libro libro : libreria.consultarCatalogo(solicitante)) {
+            if (!librosPrestados.containsKey(libro.getId())) {
+                disponibles.add(libro);
+            }
+        }
+        return disponibles;
     }
 
     public List<Prestamo> listarHistorialPrestamos(Usuario solicitante) {

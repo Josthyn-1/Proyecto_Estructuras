@@ -2,7 +2,6 @@ package modelo;
 
 import excepciones.DatoInvalidoException;
 import java.time.Year;
-import java.util.Objects;
 
 /**
  * Representa un libro de la librería.
