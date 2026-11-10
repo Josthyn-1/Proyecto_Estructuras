@@ -4,12 +4,14 @@ import excepciones.AccesoDenegadoException;
 import excepciones.DatoInvalidoException;
 import excepciones.LibroDuplicadoException;
 import excepciones.LibroNoEncontradoException;
+import estructuras.ArbolBinario;
+import estructuras.TablaHash;
 import modelo.Libro;
 import seguridad.Rol;
 import seguridad.Usuario;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -18,33 +20,34 @@ import java.util.TreeMap;
  * Gestiona el catálogo de libros de la librería integrando dos estructuras
  * complementarias:
  * <ul>
- *   <li>{@link HashMap}: indexa los libros por ID (String) para obtener,
+ *   <li>{@link TablaHash}: indexa los libros por ID para obtener,
  *       actualizar y eliminar en tiempo constante O(1) promedio.</li>
+ *   <li>{@link ArbolBinario}: mantiene los libros ordenados por ID y permite
+ *       recorrer el catálogo en ese orden.</li>
  *   <li>{@link TreeMap}: indexa los libros por año de salida (Integer) para
  *       mantener el catálogo ordenado cronológicamente y permitir consultas
  *       por año o rangos temporales sin necesidad de reordenar.</li>
  * </ul>
- * Ambas estructuras se mantienen sincronizadas en cada operación de escritura
+ * Los índices se mantienen sincronizados en cada operación de escritura
  * para aprovechar las ventajas de cada una según el tipo de acceso requerido.
  */
 public class GestionLibreria {
 
-    // Búsqueda instantánea por ID de libro.
-    private final Map<String, Libro> librosPorId;
+    // Índice hash para búsquedas rápidas e índice de árbol para el orden por ID.
+    private final TablaHash<Integer, Libro> librosPorId;
+    private final ArbolBinario<Libro> librosPorIdOrdenados;
 
     // Índice cronológico: año -> lista de libros publicados ese año.
     private final Map<Integer, List<Libro>> librosPorAnio;
 
     public GestionLibreria() {
-        this.librosPorId = new HashMap<>();
+        this.librosPorId = new TablaHash<>();
+        this.librosPorIdOrdenados = new ArbolBinario<>(
+                Comparator.comparingInt(Libro::getId));
         this.librosPorAnio = new TreeMap<>();
     }
 
     /* ==================== Utilidades internas ==================== */
-
-    private String claveId(int id) {
-        return String.valueOf(id);
-    }
 
     private void addAlIndiceAnio(Libro libro) {
         librosPorAnio.computeIfAbsent(libro.getAnioSalida(), k -> new ArrayList<>()).add(libro);
@@ -101,14 +104,14 @@ public class GestionLibreria {
             throw new DatoInvalidoException("El libro no puede ser nulo.");
         }
 
-        String clave = claveId(libro.getId());
-        if (librosPorId.containsKey(clave)) {
+        if (librosPorId.contieneClave(libro.getId())) {
             throw new LibroDuplicadoException(
                     "Ya existe un libro con el ID " + libro.getId() + ".");
         }
 
         // El constructor de Libro ya valida sus campos y lanza DatoInvalidoException si es necesario.
-        librosPorId.put(clave, libro);
+        librosPorId.insertar(libro.getId(), libro);
+        librosPorIdOrdenados.insertar(libro);
         addAlIndiceAnio(libro);
     }
 
@@ -124,7 +127,7 @@ public class GestionLibreria {
     public Libro buscarLibro(Usuario solicitante, int id) {
         validarAutenticado(solicitante);
 
-        Libro libro = librosPorId.get(claveId(id));
+        Libro libro = librosPorId.obtener(id);
         if (libro == null) {
             throw new LibroNoEncontradoException(
                     "No se encontró un libro con el ID " + id + ".");
@@ -148,17 +151,18 @@ public class GestionLibreria {
             throw new DatoInvalidoException("El libro a actualizar no puede ser nulo.");
         }
 
-        String clave = claveId(libro.getId());
-        if (!librosPorId.containsKey(clave)) {
+        if (!librosPorId.contieneClave(libro.getId())) {
             throw new LibroNoEncontradoException(
                     "No se encontró un libro con el ID " + libro.getId() + " para actualizar.");
         }
 
         // Remover versión antigua del índice por año antes de sobrescribir.
-        Libro anterior = librosPorId.get(clave);
+        Libro anterior = librosPorId.obtener(libro.getId());
         removeDelIndiceAnio(anterior);
 
-        librosPorId.put(clave, libro);
+        librosPorId.insertar(libro.getId(), libro);
+        librosPorIdOrdenados.eliminar(anterior);
+        librosPorIdOrdenados.insertar(libro);
         addAlIndiceAnio(libro);
     }
 
@@ -173,21 +177,21 @@ public class GestionLibreria {
     public void eliminarLibro(Usuario solicitante, int id) {
         validarAdministrador(solicitante);
 
-        String clave = claveId(id);
-        Libro existente = librosPorId.get(clave);
+        Libro existente = librosPorId.obtener(id);
         if (existente == null) {
             throw new LibroNoEncontradoException(
                     "No se encontró un libro con el ID " + id + " para eliminar.");
         }
 
-        librosPorId.remove(clave);
+        librosPorId.eliminar(id);
+        librosPorIdOrdenados.eliminar(existente);
         removeDelIndiceAnio(existente);
     }
 
     /* ==================== Consultas (ambos roles) ==================== */
 
     /**
-     * Devuelve todos los libros del catálogo en orden de inserción (HashMap).
+     * Devuelve todos los libros del catálogo ordenados por ID mediante el árbol binario.
      *
      * @param solicitante usuario autenticado.
      * @return lista de libros.
@@ -195,7 +199,7 @@ public class GestionLibreria {
      */
     public List<Libro> consultarCatalogo(Usuario solicitante) {
         validarAutenticado(solicitante);
-        return new ArrayList<>(librosPorId.values());
+        return librosPorIdOrdenados.recorridoInOrden();
     }
 
     /**
@@ -230,6 +234,6 @@ public class GestionLibreria {
     }
 
     public int cantidadLibros() {
-        return librosPorId.size();
+        return librosPorId.tamano();
     }
 }

@@ -1,6 +1,7 @@
 package seguridad;
 
 import excepciones.AccesoDenegadoException;
+import excepciones.DatoInvalidoException;
 import excepciones.UsuarioDuplicadoException;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,6 +80,28 @@ public class GestionUsuarios {
      */
     public void registrarUsuario(Usuario nuevo) {
         registrarUsuario(usuarioAutenticado, nuevo);
+    }
+
+    /**
+     * Elimina un usuario del sistema. Solo un administrador puede hacerlo y no
+     * puede eliminar su propia cuenta.
+     */
+    public void eliminarUsuario(Usuario solicitante, String username) {
+        if (solicitante == null || solicitante.getRol() != Rol.ADMINISTRADOR) {
+            throw new AccesoDenegadoException(
+                    "Acceso denegado: solo el Administrador puede eliminar usuarios.");
+        }
+        if (username == null || username.trim().isEmpty()) {
+            throw new DatoInvalidoException("Debe indicar el usuario que desea eliminar.");
+        }
+        if (solicitante.getUsername().equals(username)) {
+            throw new AccesoDenegadoException("No puede eliminar su propia cuenta.");
+        }
+
+        Usuario usuario = buscarUsuario(username)
+                .orElseThrow(() -> new DatoInvalidoException(
+                        "No se encontró el usuario '" + username + "'."));
+        usuarios.remove(usuario);
     }
 
     private boolean usuarioExiste(String username) {

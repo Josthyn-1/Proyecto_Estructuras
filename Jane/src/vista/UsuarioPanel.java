@@ -14,7 +14,7 @@ import java.util.List;
 
 /**
  * Panel de gestion de usuarios. Solo accesible por el Administrador.
- * Permite dar de alta nuevos perfiles (Cajero o Administrador).
+ * Permite registrar y eliminar perfiles (Cajero o Administrador).
  */
 public class UsuarioPanel extends JPanel {
 
@@ -34,6 +34,7 @@ public class UsuarioPanel extends JPanel {
         initComponents();
         refrescarTabla();
     }
+
 
     private void initComponents() {
         // Formulario de registro
@@ -64,6 +65,10 @@ public class UsuarioPanel extends JPanel {
         tablaModelo = new DefaultTableModel(columnas, 0);
         tablaUsuarios = new JTable(tablaModelo);
         add(new JScrollPane(tablaUsuarios), BorderLayout.CENTER);
+
+        JButton btnEliminar = new JButton("Eliminar usuario seleccionado");
+        btnEliminar.addActionListener(e -> eliminarUsuario());
+        add(btnEliminar, BorderLayout.SOUTH);
     }
 
     private void registrarUsuario() {
@@ -101,6 +106,42 @@ public class UsuarioPanel extends JPanel {
         List<Usuario> usuarios = gestionUsuarios.getUsuarios();
         for (Usuario u : usuarios) {
             tablaModelo.addRow(new Object[]{u.getUsername(), u.getRol()});
+        }
+    }
+
+    private void eliminarUsuario() {
+        int filaSeleccionada = tablaUsuarios.getSelectedRow();
+        if (filaSeleccionada < 0) {
+            JOptionPane.showMessageDialog(this,
+                    "Seleccione el usuario que desea eliminar.",
+                    "Usuario no seleccionado",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int filaModelo = tablaUsuarios.convertRowIndexToModel(filaSeleccionada);
+        String username = (String) tablaModelo.getValueAt(filaModelo, 0);
+        int confirmacion = JOptionPane.showConfirmDialog(this,
+                "¿Está seguro de que desea eliminar al usuario '" + username + "'?",
+                "Confirmar eliminación",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+        if (confirmacion != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        try {
+            gestionUsuarios.eliminarUsuario(usuarioLogueado, username);
+            refrescarTabla();
+            JOptionPane.showMessageDialog(this,
+                    "El usuario '" + username + "' fue eliminado.",
+                    "Usuario eliminado",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } catch (AccesoDenegadoException | DatoInvalidoException e) {
+            JOptionPane.showMessageDialog(this,
+                    e.getMessage(),
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 }

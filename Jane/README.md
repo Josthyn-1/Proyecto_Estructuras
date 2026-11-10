@@ -1,18 +1,19 @@
-## Getting Started
+# Sistema de gestión de librería
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+Aplicación Java de escritorio para administrar libros, usuarios, préstamos y facturas.
 
-## Folder Structure
+## Estructuras de datos
 
-The workspace contains two folders by default, where:
+El catálogo de libros usa tres índices coordinados en `servicios/GestionLibreria.java`:
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+- `estructuras/TablaHash.java`: tabla hash propia con encadenamiento separado y redimensionamiento. Busca los libros por ID en tiempo promedio O(1).
+- `estructuras/ArbolBinario.java` y `estructuras/NodoArbol.java`: árbol binario de búsqueda ordenado por ID. El recorrido inorden muestra el catálogo ordenado y sus operaciones cuestan O(h), donde h es la altura del árbol.
+- `TreeMap`: índice cronológico por año de publicación.
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+Las altas, actualizaciones y bajas del catálogo actualizan los índices para que las consultas por ID, por año y el recorrido ordenado reflejen los mismos libros.
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+## Ejecutar en VS Code
 
-## Dependency Management
+El código fuente está en `src` y el punto de entrada es `vista.Main`. El proyecto se puede abrir en VS Code con la extensión **Extension Pack for Java** y ejecutar desde la vista **JAVA PROJECTS**.
 
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+Credenciales iniciales: `admin` / `admin`.
