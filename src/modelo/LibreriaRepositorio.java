@@ -70,6 +70,14 @@ public class LibreriaRepositorio {
                 "A. Lacroix, Verboeckhoven & Cie.", 1862));
         libros.add(new Libro(25, "Ensayo sobre la ceguera", "José Saramago", 1,
                 "Editorial Caminho", 1995));
+
+        java.util.Map<Integer, String> cats = new java.util.HashMap<>();
+        for (int id : new int[]{1, 6, 9, 11}) cats.put(id, "Realismo mágico");
+        for (int id : new int[]{2, 12, 13, 14, 24}) cats.put(id, "Clásicos");
+        for (int id : new int[]{15, 16, 21}) cats.put(id, "Terror y fantasía");
+        for (int id : new int[]{4, 17, 18}) cats.put(id, "Infantil y juvenil");
+        for (int id : new int[]{3, 5, 7, 8, 10, 19, 20, 22, 23, 25}) cats.put(id, "Contemporánea");
+        for (Libro l : libros) l.setCategoria(cats.getOrDefault(l.getId(), "General"));
     }
 
     /**

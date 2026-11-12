@@ -16,6 +16,7 @@ public class Libro {
     private int edicion;
     private String editorial;
     private int anioSalida;
+    private String categoria = "General";
 
     public Libro(int id, String nombreLibro, String autor, int edicion,
                  String editorial, int anioSalida) {
@@ -145,5 +146,13 @@ public class Libro {
         return "Libro{id=" + id + ", nombreLibro='" + nombreLibro + "', autor='" + autor
                 + "', edicion=" + edicion + ", editorial='" + editorial
                 + "', anioSalida=" + anioSalida + "}";
+    }
+
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = (categoria == null || categoria.trim().isEmpty()) ? "General" : categoria.trim();
     }
 }

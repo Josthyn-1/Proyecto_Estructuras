@@ -42,4 +42,25 @@ public class Cliente {
     public String getNombreCompleto() {
         return nombres + " " + apellidos;
     }
+
+    private boolean bloqueado;
+    private String motivoBloqueo = "";
+
+    public boolean isBloqueado() {
+        return bloqueado;
+    }
+
+    public String getMotivoBloqueo() {
+        return motivoBloqueo;
+    }
+
+    public void bloquear(String motivo) {
+        this.bloqueado = true;
+        this.motivoBloqueo = (motivo == null || motivo.trim().isEmpty()) ? "Bloqueado manualmente." : motivo.trim();
+    }
+
+    public void desbloquear() {
+        this.bloqueado = false;
+        this.motivoBloqueo = "";
+    }
 }

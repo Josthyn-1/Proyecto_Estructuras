@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public class GestionPrestamos {
 
-    private static final double COSTO_FIJO_POR_DIA_RETRASO = 200.0;
+    private static final double COSTO_FIJO_POR_DIA_RETRASO = 2000.0;
 
     private final GestionLibreria libreria;
     private final Map<String, Prestamo> prestamos;
@@ -76,6 +76,10 @@ public class GestionPrestamos {
         if (cliente == null) {
             throw new DatoInvalidoException("El cliente del préstamo no puede estar vacío.");
         }
+        if (cliente.isBloqueado()) {
+            throw new DatoInvalidoException(
+                    "El cliente tiene prohibido el préstamo de libros: " + cliente.getMotivoBloqueo());
+        }
         if (fechaPrestamo == null || fechaDevolucionEstimada == null) {
             throw new DatoInvalidoException("Las fechas de préstamo y estimada no pueden ser nulas.");
         }
@@ -110,6 +114,10 @@ public class GestionPrestamos {
      * @throws DatoInvalidoException    si el préstamo no existe o ya fue devuelto.
      */
     public double registrarDevolucion(Usuario solicitante, String idPrestamo) {
+        return registrarDevolucion(solicitante, idPrestamo, LocalDate.now());
+    }
+
+    public double registrarDevolucion(Usuario solicitante, String idPrestamo, LocalDate fechaReal) {
         validarCajeroAdministrador(solicitante);
 
         Prestamo prestamo = prestamos.get(idPrestamo);
@@ -121,12 +129,19 @@ public class GestionPrestamos {
                     "El préstamo " + idPrestamo + " ya fue devuelto previamente.");
         }
 
-        LocalDate fechaReal = LocalDate.now();
+        if (fechaReal == null || fechaReal.isBefore(prestamo.getFechaPrestamo())) {
+            throw new DatoInvalidoException("La fecha de devolución no puede ser anterior a la fecha del préstamo.");
+        }
         prestamo.setFechaDevolucionReal(fechaReal);
         prestamo.setActivo(false);
         librosPrestados.remove(prestamo.getLibroPrestado().getId());
 
-        return calcularMulta(prestamo);
+        double multa = calcularMulta(prestamo);
+        if (multa > 0) {
+            prestamo.getCliente().bloquear("Devolvió con retraso el préstamo " + prestamo.getIdPrestamo()
+                    + " (mora de $" + (long) multa + ").");
+        }
+        return multa;
     }
 
     /**

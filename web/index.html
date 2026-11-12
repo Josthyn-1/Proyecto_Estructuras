@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jane Library</title>
+<link rel="icon" type="image/jpeg" href="/img/libreria.jpg">
+<style>
+:root{--bg:#f4f5fb;--sf:#fff;--bd:#e4e6f0;--tx:#1c1d2b;--mu:#6b6f86;--ac:#5b5bf0;--ac2:#8b5cf6;--ok:#10b981;--wa:#f59e0b;--rd:#ef4444;--sh:0 10px 30px rgba(40,40,100,.08)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0b0b12;--sf:#16161f;--bd:#26263a;--tx:#f1f1f7;--mu:#9a9db5;--sh:0 10px 30px rgba(0,0,0,.4)}}
+:root[data-theme=dark]{--bg:#0b0b12;--sf:#16161f;--bd:#26263a;--tx:#f1f1f7;--mu:#9a9db5;--sh:0 10px 30px rgba(0,0,0,.4)}
+*{box-sizing:border-box;margin:0}
+body{font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+button{font:inherit;cursor:pointer;border:0}
+.hide{display:none!important}
+/* LOGIN: fondo grande + tarjeta pequeña */
+#login{min-height:100vh;display:grid;place-items:center;padding:24px;position:relative;overflow:hidden;background:linear-gradient(135deg,#1e1b4b,#4338ca 45%,#7c3aed)}
+#login::before,#login::after{content:"";position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;animation:flota 12s ease-in-out infinite alternate}
+#login::before{width:520px;height:520px;background:#22d3ee;top:-140px;left:-120px}
+#login::after{width:480px;height:480px;background:#f472b6;bottom:-160px;right:-100px;animation-delay:-6s}
+@keyframes flota{to{transform:translate(60px,40px) scale(1.15)}}
+.marca-fondo{position:absolute;top:32px;left:40px;color:#fff;display:flex;gap:12px;align-items:center;font-weight:700;font-size:20px;z-index:1}
+.logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--ac),var(--ac2));display:grid;place-items:center;color:#fff}
+.logo-imagen{background:#fff;overflow:hidden}
+.logo-imagen img{width:100%;height:100%;object-fit:cover;display:block}
+.card-login{position:relative;z-index:1;width:100%;max-width:400px;background:rgba(255,255,255,.96);color:#1c1d2b;border-radius:20px;padding:36px 32px;box-shadow:0 30px 80px rgba(0,0,0,.35);animation:sube .6s ease both}
+@keyframes sube{from{opacity:0;transform:translateY(24px)}}
+.card-login h1{font-size:24px;margin:14px 0 4px}.card-login p{color:#6b6f86;font-size:14px;margin-bottom:22px}
+.campo{position:relative;margin-bottom:14px}
+.campo svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#8a8ea6}
+.campo input,.f input{width:100%;padding:12px 14px 12px 42px;border:1.5px solid var(--bd);border-radius:12px;font:inherit;background:#fff;color:#1c1d2b;outline:none;transition:.2s}
+.campo input:focus,.f input:focus{border-color:var(--ac);box-shadow:0 0 0 4px rgba(91,91,240,.15)}
+.btn{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;display:inline-flex;gap:8px;align-items:center;justify-content:center;transition:.2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(91,91,240,.4)}
+.card-login .btn{width:100%;margin-top:6px}
+.err{color:var(--rd);font-size:13px;min-height:18px;margin-top:10px;text-align:center}
+.hint{font-size:12px;color:#8a8ea6;text-align:center;margin-top:14px}
+/* APP */
+#app{display:grid;grid-template-columns:250px 1fr;min-height:100vh}
+aside{background:var(--sf);border-right:1px solid var(--bd);padding:20px 14px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+aside .brand{display:flex;gap:12px;align-items:center;font-weight:700;font-size:17px;padding:0 6px 26px}
+aside small{color:var(--mu);font-size:11px;font-weight:700;letter-spacing:.08em;padding:0 10px 8px}
+nav button{width:100%;display:flex;gap:12px;align-items:center;padding:11px 12px;border-radius:10px;background:none;color:var(--mu);margin-bottom:4px;text-align:left;transition:.2s}
+nav button:hover{background:var(--bg);color:var(--tx)}
+nav button.on{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;box-shadow:0 6px 16px rgba(91,91,240,.35)}
+.perfil{margin-top:auto;border-top:1px solid var(--bd);padding-top:14px;display:flex;gap:10px;align-items:center}
+.av{width:38px;height:38px;border-radius:50%;background:#e0e0ff;color:#4338ca;display:grid;place-items:center;font-weight:700;font-size:13px}
+.perfil div{flex:1;font-size:13px;font-weight:600}.perfil div span{display:block;color:var(--mu);font-size:11px;font-weight:400}
+.perfil button{background:none;color:var(--mu);padding:6px;border-radius:8px}.perfil button:hover{color:var(--rd);background:var(--bg)}
+main{padding:28px 34px;max-width:1200px;width:100%}
+header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:26px;flex-wrap:wrap}
+header h2{font-size:26px}header p{color:var(--mu);font-size:14px;margin-top:2px}
+.acciones{display:flex;gap:10px;align-items:center}
+.busca{position:relative}.busca svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--mu)}
+.busca input{padding:10px 14px 10px 38px;border:1.5px solid var(--bd);border-radius:12px;background:var(--sf);color:var(--tx);font:inherit;width:260px;outline:none}
+.busca input:focus{border-color:var(--ac)}
+.ico-btn{background:var(--sf);border:1.5px solid var(--bd);color:var(--mu);padding:10px;border-radius:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-bottom:24px}
+.met{background:var(--sf);border:1px solid var(--bd);border-radius:16px;padding:20px;box-shadow:var(--sh);transition:.25s;animation:sube .5s ease both}
+.met:hover{transform:translateY(-4px)}
+.met .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;margin-bottom:14px}
+.met b{font-size:30px;display:block}.met span{color:var(--mu);font-size:13px}
+.panel{background:var(--sf);border:1px solid var(--bd);border-radius:16px;box-shadow:var(--sh);overflow:auto;animation:sube .5s ease both}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;color:var(--mu);font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:14px 18px;background:var(--bg)}
+td{padding:14px 18px;border-top:1px solid var(--bd)}tr:hover td{background:var(--bg)}
+.tag{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.t-ok{background:rgba(16,185,129,.15);color:var(--ok)}.t-wa{background:rgba(245,158,11,.15);color:var(--wa)}.t-ac{background:rgba(91,91,240,.15);color:var(--ac)}
+.del{background:none;color:var(--mu);padding:6px;border-radius:8px}.del:hover{color:var(--rd);background:rgba(239,68,68,.1)}
+.vacio{padding:40px;text-align:center;color:var(--mu)}
+.rapidos{display:flex;gap:12px;flex-wrap:wrap}.rapidos .btn{background:var(--bg);color:var(--tx);border:1px solid var(--bd)}
+dialog{border:0;border-radius:18px;padding:26px;width:min(460px,92vw);background:var(--sf);color:var(--tx);box-shadow:0 30px 80px rgba(0,0,0,.4)}
+dialog::backdrop{background:rgba(10,10,30,.55);backdrop-filter:blur(4px)}
+.f{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}.f label{font-size:12px;color:var(--mu);display:block;margin-bottom:4px}
+.f input{padding:10px 12px;background:var(--bg);color:var(--tx)}.f .full{grid-column:1/-1}
+#toast{position:fixed;bottom:24px;right:24px;background:#1c1d2b;color:#fff;padding:12px 18px;border-radius:12px;transform:translateY(80px);opacity:0;transition:.3s;z-index:9}
+#toast.on{transform:none;opacity:1}
+.cats{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.cat{height:190px;border-radius:18px;position:relative;overflow:hidden;cursor:pointer;color:#fff;background-size:cover;background-position:center;box-shadow:var(--sh);transition:.3s;animation:sube .5s ease both}
+.cat::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,.6))}
+.cat:hover{transform:translateY(-6px) scale(1.02)}
+.cat .em{position:absolute;top:14px;right:18px;font-size:54px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))}
+.cat div{position:absolute;left:18px;bottom:14px}.cat b{font-size:19px;display:block}.cat span{font-size:13px;opacity:.9}
+.f select{width:100%;padding:10px 12px;border:1.5px solid var(--bd);border-radius:12px;background:var(--bg);color:var(--tx);font:inherit}
+.cat .foto{position:absolute;top:12px;left:12px;z-index:2;background:rgba(0,0,0,.45);color:#fff;border-radius:10px;padding:7px;opacity:.85}.cat .foto:hover{background:var(--ac)}
+.mini{background:var(--bg);border:1px solid var(--bd);color:var(--tx);padding:6px 10px;border-radius:9px;font-size:13px;display:inline-flex;gap:6px;align-items:center}.mini:hover{border-color:var(--ac);color:var(--ac)}
+@media(max-width:800px){#app{grid-template-columns:1fr}aside{position:static;height:auto}main{padding:20px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="home" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></symbol>
+<symbol id="book" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+<symbol id="loan" viewBox="0 0 24 24"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></symbol>
+<symbol id="bill" viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/><path d="M8 8h8M8 12h8"/></symbol>
+<symbol id="users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></symbol>
+<symbol id="out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5M21 12H9"/></symbol>
+<symbol id="search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+<symbol id="lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+<symbol id="user" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="trash" viewBox="0 0 24 24"><path d="M3 6h18M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></symbol>
+<symbol id="img" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></symbol>
+<symbol id="check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+<symbol id="client" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M14 9h4M14 13h4M5 17c.8-1.7 2.2-2.5 4-2.5s3.2.8 4 2.5"/></symbol>
+<symbol id="moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+</defs></svg>
+
+<section id="login">
+  <div class="marca-fondo"><div class="logo logo-imagen"><img src="/img/libreria.jpg" alt="Jane Library"></div>Jane Library</div>
+  <div class="card-login">
+    <div class="logo"><svg class="i"><use href="#lock"/></svg></div>
+    <h1>Bienvenido de nuevo</h1><p>Ingresa tus credenciales para acceder al sistema.</p>
+    <div class="campo"><svg class="i"><use href="#user"/></svg><input id="u" placeholder="Usuario" autocomplete="username"></div>
+    <div class="campo"><svg class="i"><use href="#lock"/></svg><input id="c" type="password" placeholder="Contraseña" autocomplete="current-password"></div>
+    <button class="btn" id="entrar"><svg class="i"><use href="#out"/></svg>Iniciar sesión</button>
+    <div class="err" id="err"></div>
+  </div>
+</section>
+
+<div id="app" class="hide">
+  <aside>
+    <div class="brand"><div class="logo logo-imagen"><img src="/img/libreria.jpg" alt="Jane Library"></div>Jane Library</div>
+    <small>MENÚ PRINCIPAL</small>
+    <nav id="nav"></nav>
+    <div class="perfil"><div class="av" id="av"></div><div id="who"></div>
+      <button id="salir" title="Cerrar sesión"><svg class="i"><use href="#out"/></svg></button></div>
+  </aside>
+  <main>
+    <header><div><h2 id="tit"></h2><p id="sub"></p></div>
+      <div class="acciones" id="acc"></div></header>
+    <div id="vista"></div>
+  </main>
+</div>
+
+<dialog id="dlg">
+  <h3>Nuevo libro</h3>
+  <div class="f">
+    <div><label>ID</label><input id="n-id" type="number"></div><div><label>Edición</label><input id="n-edicion" type="number"></div>
+    <div class="full"><label>Título</label><input id="n-nombre"></div>
+    <div class="full"><label>Autor</label><input id="n-autor"></div>
+    <div class="full"><label>Categoría (elige una o escribe una nueva)</label><input id="n-categoria" list="cats-dl"><datalist id="cats-dl"></datalist></div>
+    <div><label>Editorial</label><input id="n-editorial"></div><div><label>Año</label><input id="n-anio" type="number"></div>
+  </div>
+  <div class="acciones" style="justify-content:flex-end"><button class="ico-btn" id="cancelar">Cancelar</button>
+    <button class="btn" id="guardar">Guardar libro</button></div>
+</dialog>
+<dialog id="dlg-u">
+  <h3>Nuevo usuario</h3>
+  <div class="f">
+    <div class="full"><label>Usuario</label><input id="u-nombre"></div>
+    <div class="full"><label>Contraseña</label><input id="u-clave" type="password"></div>
+    <div class="full"><label>Rol</label><select id="u-rol"><option value="CAJERO">Cajero</option><option value="ADMINISTRADOR">Administrador</option></select></div>
+  </div>
+  <div class="acciones" style="justify-content:flex-end"><button class="ico-btn" id="u-cancelar">Cancelar</button>
+    <button class="btn" id="u-guardar">Crear usuario</button></div>
+</dialog>
+<dialog id="dlg-p">
+  <h3>Nuevo préstamo</h3>
+  <div class="f">
+    <div><label>ID del préstamo</label><input id="p-id"></div><div><label>Cédula del cliente</label><input id="p-cedula" maxlength="10" inputmode="numeric"></div>
+    <div class="full" id="p-cli" style="font-size:13px;min-height:18px"></div>
+    <div class="full"><label>Libro disponible</label><select id="p-libro"></select></div>
+    <div><label>Fecha del préstamo</label><input id="p-fecha" type="date"></div><div><label>Devolución estimada</label><input id="p-entrega" type="date"></div>
+  </div>
+  <div class="acciones" style="justify-content:flex-end"><button class="ico-btn" id="p-cancelar">Cancelar</button>
+    <button class="btn" id="p-guardar">Registrar préstamo</button></div>
+</dialog>
+<dialog id="dlg-d">
+  <h3>Registrar devolución</h3>
+  <div class="f"><div class="full"><label>Fecha real de devolución</label><input id="d-fecha" type="date"></div>
+    <div class="full" id="d-info" style="font-size:14px"></div></div>
+  <div class="acciones" style="justify-content:flex-end"><button class="ico-btn" id="d-cancelar">Cancelar</button>
+    <button class="btn" id="d-ok">Confirmar devolución</button></div>
+</dialog>
+<dialog id="dlg-c">
+  <h3>Nuevo cliente</h3>
+  <div class="f"><div class="full"><label>Cédula (10 dígitos)</label><input id="c-cedula" maxlength="10" inputmode="numeric"></div>
+    <div><label>Nombres</label><input id="c-nombres"></div><div><label>Apellidos</label><input id="c-apellidos"></div></div>
+  <div class="acciones" style="justify-content:flex-end"><button class="ico-btn" id="c-cancelar">Cancelar</button>
+    <button class="btn" id="c-guardar">Registrar cliente</button></div>
+</dialog>
+<div id="toast"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const ico=n=>`<svg class="i"><use href="#${n}"/></svg>`;
+const esc=t=>String(t??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let sesion=null,vistaActual="home",libros=[];
+async function api(ruta,metodo="GET",datos){
+  const r=await fetch("/api/"+ruta,{method:metodo,body:datos?JSON.stringify(datos):undefined});
+  const j=await r.json(); if(!r.ok) throw new Error(j.error); return j;
+}
+function aviso(m){const t=$("#toast");t.textContent=m;t.classList.add("on");setTimeout(()=>t.classList.remove("on"),2800)}
+
+$("#entrar").onclick=async()=>{
+  try{
+    sesion=await api("login","POST",{usuario:$("#u").value.trim(),clave:$("#c").value});
+    $("#login").classList.add("hide");$("#app").classList.remove("hide");iniciarApp();
+  }catch(e){$("#err").textContent=e.message;$("#c").value=""}
+};
+["#u","#c"].forEach(s=>$(s).addEventListener("keydown",e=>e.key==="Enter"&&$("#entrar").click()));
+$("#salir").onclick=async()=>{await api("logout","POST");location.reload()};
+
+const MENU=[["home","home","Panel de control"],["libros","book","Libros"],["prestamos","loan","Préstamos"],["clientes","client","Clientes"],["facturas","bill","Facturación"],["usuarios","users","Usuarios"]];
+function iniciarApp(){
+  $("#av").textContent=sesion.usuario.slice(0,2).toUpperCase();
+  $("#who").innerHTML=`${esc(sesion.usuario)}<span>${esc(sesion.rol)}</span>`;
+  $("#nav").innerHTML=MENU.filter(m=>m[0]!=="usuarios"||sesion.rol==="ADMINISTRADOR")
+    .map(m=>`<button data-v="${m[0]}">${ico(m[1])}${m[2]}</button>`).join("");
+  document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>ir(b.dataset.v));
+  ir("home");
+}
+async function ir(v){
+  vistaActual=v;
+  document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
+  const m=MENU.find(x=>x[0]===v);
+  $("#tit").textContent=v==="home"?"Hola, "+sesion.usuario:m[2];
+  $("#sub").textContent=v==="home"?"Resumen general de la biblioteca.":"Gestión de "+m[2].toLowerCase();
+  $("#acc").innerHTML=`<button class="ico-btn" id="tema" title="Cambiar tema">${ico("moon")}</button>`;
+  $("#tema").onclick=()=>{const d=document.documentElement;d.dataset.theme=d.dataset.theme==="dark"?"light":"dark"};
+  try{await ({home:pHome,libros:pLibros,prestamos:pPrest,clientes:pCli,facturas:pFact,usuarios:pUsu})[v]()}
+  catch(e){$("#vista").innerHTML=`<div class="panel vacio">${esc(e.message)}</div>`}
+}
+const tabla=(cols,filas)=>`<div class="panel"><table><tr>${cols.map(c=>`<th>${c}</th>`).join("")}</tr>${
+  filas.length?filas.join(""):`<tr><td colspan="${cols.length}" class="vacio">Sin registros</td></tr>`}</table></div>`;
+const tag=(ok,si,no)=>`<span class="tag ${ok?"t-ok":"t-wa"}">${ok?si:no}</span>`;
+
+async function pHome(){
+  const r=await api("resumen");
+  const M=[["Libros registrados",r.libros,"book","#5b5bf0"],["Préstamos activos",r.activos,"loan","#f59e0b"],
+    ["Facturas",r.facturas,"bill","#10b981"],["Recaudación",cop(r.recaudo),"bill","#06b6d4"]];
+  if(sesion.rol==="ADMINISTRADOR")M.splice(2,0,["Usuarios",r.usuarios,"users","#ec4899"]);
+  $("#vista").innerHTML=`<div class="grid">${M.map((m,i)=>`<div class="met" style="animation-delay:${i*80}ms">
+    <div class="ic" style="background:${m[3]}22;color:${m[3]}">${ico(m[2])}</div><b>${m[1]}</b><span>${m[0]}</span></div>`).join("")}</div>
+    <div class="panel" style="padding:22px"><h3 style="margin-bottom:4px">Accesos rápidos</h3>
+    <p style="color:var(--mu);font-size:14px;margin-bottom:16px">Continúa con las tareas habituales.</p>
+    <div class="rapidos"><button class="btn" onclick="ir('libros')">${ico("book")}Ver libros</button>
+    <button class="btn" onclick="ir('prestamos')">${ico("loan")}Préstamos</button>
+    <button class="btn" onclick="ir('facturas')">${ico("bill")}Facturación</button></div></div>`;
+}
+let catSel=null,fotoV=Date.now(),slugFoto=null;
+const inputFoto=document.createElement("input");inputFoto.type="file";inputFoto.accept="image/*";
+inputFoto.onchange=async()=>{
+  const f=inputFoto.files[0];if(!f)return;
+  try{const r=await fetch("/api/imagen?slug="+slugFoto,{method:"POST",body:f});const j=await r.json();
+    if(!r.ok)throw new Error(j.error);fotoV=Date.now();aviso("Imagen actualizada");pintarLibros()}
+  catch(e){aviso(e.message)}inputFoto.value="";
+};
+const EMO={"Realismo mágico":"🦋","Clásicos":"🏛️","Terror y fantasía":"🦇","Infantil y juvenil":"🧸","Contemporánea":"🌆"};
+const GRAD=["#6366f1,#8b5cf6","#f59e0b,#ef4444","#10b981,#06b6d4","#ec4899,#8b5cf6","#0ea5e9,#6366f1","#84cc16,#10b981"];
+const slug=t=>t.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+async function pLibros(){
+  catSel=null;libros=await api("libros");
+  $("#acc").insertAdjacentHTML("afterbegin",`<div class="busca">${ico("search")}<input id="q" placeholder="Buscar título, autor, año..."></div>
+    <button class="btn" id="nuevo">${ico("plus")}Nuevo libro</button>`);
+  $("#q").oninput=pintarLibros;$("#nuevo").onclick=abrirNuevo;pintarLibros();
+}
+function pintarLibros(){
+  const q=($("#q")?.value||"").toLowerCase();
+  if(!q&&!catSel){
+    const cats={};libros.forEach(l=>(cats[l.categoria]??=[]).push(l));
+    $("#vista").innerHTML=`<div class="grid cats">${Object.keys(cats).sort().map((c,i)=>`<div class="cat" data-c="${esc(c)}"
+      style="animation-delay:${i*70}ms;background-image:url(img/${slug(c)}.jpg?v=${fotoV}),linear-gradient(135deg,${GRAD[i%GRAD.length]})">
+      ${sesion.rol==="ADMINISTRADOR"?`<button class="foto" data-s="${slug(c)}" title="Cambiar imagen">${ico("img")}</button>`:""}<span class="em">${EMO[c]||"📚"}</span><div><b>${esc(c)}</b><span>${cats[c].length} libro${cats[c].length===1?"":"s"}</span></div></div>`).join("")}</div>`;
+    document.querySelectorAll(".cat").forEach(e=>e.onclick=()=>{catSel=e.dataset.c;pintarLibros()});
+    document.querySelectorAll(".cat .foto").forEach(b=>b.onclick=e=>{e.stopPropagation();slugFoto=b.dataset.s;inputFoto.click()});
+    return;
+  }
+  const f=libros.filter(l=>(!catSel||l.categoria===catSel)&&Object.values(l).join(" ").toLowerCase().includes(q));
+  $("#vista").innerHTML=(catSel?`<div class="acciones" style="margin-bottom:16px"><button class="ico-btn" id="atras">← Categorías</button><h3>${esc(catSel)}</h3></div>`:"")
+    +tabla(["ID","Título","Autor","Categoría","Editorial","Año",""],f.map(l=>`<tr><td>${l.id}</td>
+    <td><b>${esc(l.nombre)}</b></td><td>${esc(l.autor)}</td><td><span class="tag t-ac">${esc(l.categoria)}</span></td><td>${esc(l.editorial)}</td><td>${l.anio}</td>
+    <td><button class="del" title="Eliminar" onclick="borrar(${l.id})">${ico("trash")}</button></td></tr>`));
+  if(catSel)$("#atras").onclick=()=>{catSel=null;$("#q").value="";pintarLibros()};
+}
+function abrirNuevo(){
+  $("#cats-dl").innerHTML=[...new Set(libros.map(l=>l.categoria))].map(c=>`<option value="${esc(c)}">`).join("");
+  $("#n-categoria").value=catSel||"";$("#dlg").showModal();
+}
+async function borrar(id){
+  if(!confirm("¿Eliminar este libro?"))return;
+  try{libros=await api("libros?id="+id,"DELETE");aviso("Libro eliminado");pintarLibros()}catch(e){aviso(e.message)}
+}
+$("#cancelar").onclick=()=>$("#dlg").close();
+$("#guardar").onclick=async()=>{
+  const g=k=>$("#n-"+k).value.trim();
+  try{
+    libros=await api("libros","POST",{id:g("id"),nombre:g("nombre"),autor:g("autor"),categoria:g("categoria"),edicion:g("edicion"),editorial:g("editorial"),anio:g("anio")});
+    $("#dlg").close();document.querySelectorAll("#dlg input").forEach(i=>i.value="");aviso("Libro guardado");pintarLibros();
+  }catch(e){aviso(e.message)}
+};
+const MORA_DIA=2000,cop=n=>"$"+Math.round(n).toLocaleString("es-CO");
+const hoy=(d=0)=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4+d*864e5).toISOString().slice(0,10);
+async function pPrest(){
+  $("#acc").insertAdjacentHTML("afterbegin",`<button class="btn" id="np">${ico("plus")}Nuevo préstamo</button>`);
+  $("#np").onclick=async()=>{
+    try{const d=await api("disponibles");if(!d.length)return aviso("No hay libros disponibles.");
+      $("#p-libro").innerHTML=d.map(l=>`<option value="${l.id}">${esc(l.nombre)}</option>`).join("");
+      $("#p-cli").textContent="";$("#p-fecha").value=hoy();$("#p-entrega").value=hoy(7);$("#dlg-p").showModal()}catch(e){aviso(e.message)}
+  };
+  pintarPrest();
+}
+async function pintarPrest(){
+  const p=await api("prestamos");
+  $("#vista").innerHTML=tabla(["ID","Libro","Cliente","Fecha","Entrega","Mora","Estado",""],p.map(x=>`<tr><td>${esc(x.id)}</td>
+    <td><b>${esc(x.libro)}</b></td><td>${esc(x.cliente)}</td><td>${x.fecha}</td><td>${x.entrega}</td>
+    <td>${x.mora>0?`<span class="tag t-wa">${cop(x.mora)}</span>`:"—"}</td><td>${tag(!x.activo,"Devuelto","Activo")}</td>
+    <td>${x.activo?`<button class="mini" data-d="${esc(x.id)}" data-e="${x.entrega}">${ico("check")}Devolver</button>`:x.mora>0?`<button class="mini" data-f="${esc(x.id)}">${ico("bill")}Facturar</button>`:""}</td></tr>`));
+  document.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{
+    devAct={id:b.dataset.d,entrega:b.dataset.e};$("#d-fecha").value=hoy();vistaMora();$("#dlg-d").showModal()});
+  document.querySelectorAll("[data-f]").forEach(b=>b.onclick=async()=>{
+    try{await api("facturas","POST",{prestamo:b.dataset.f});aviso("Factura generada");ir("facturas")}catch(e){aviso(e.message)}});
+}
+let devAct=null;
+function vistaMora(){
+  if(!devAct)return;const f=$("#d-fecha").value;
+  const dias=f?Math.max(0,Math.round((new Date(f)-new Date(devAct.entrega))/864e5)):0;
+  $("#d-info").innerHTML=`Fecha estimada: <b>${devAct.entrega}</b><br>`+(dias>0
+    ?`<span style="color:var(--rd)">${dias} día${dias>1?"s":""} de retraso → mora ${cop(dias*MORA_DIA)}</span>`
+    :`<span style="color:var(--ok)">A tiempo, sin mora</span>`);
+}
+$("#d-fecha").oninput=vistaMora;
+$("#d-cancelar").onclick=()=>$("#dlg-d").close();
+$("#d-ok").onclick=async()=>{
+  try{const r=await api("devolver","POST",{id:devAct.id,fecha:$("#d-fecha").value});$("#dlg-d").close();
+    aviso(r.multa>0?"Devuelto con mora de "+cop(r.multa)+". El cliente quedó bloqueado.":"Libro devuelto a tiempo.");pintarPrest()}catch(e){aviso(e.message)}
+};
+$("#p-cedula").oninput=async()=>{
+  const c=$("#p-cedula").value.trim(),o=$("#p-cli");
+  if(c.length<10){o.textContent="";return}
+  try{const r=await api("cliente?cedula="+encodeURIComponent(c));
+    o.innerHTML=r.bloqueado?`<span style="color:var(--rd)">⛔ ${esc(r.nombre)} está bloqueado: ${esc(r.motivo)}</span>`
+      :`<span style="color:var(--ok)">✔ ${esc(r.nombre)} · puede prestar</span>`}
+  catch(e){o.innerHTML=`<span style="color:var(--rd)">${esc(e.message)}</span>`}
+};
+$("#p-cancelar").onclick=()=>$("#dlg-p").close();
+$("#p-guardar").onclick=async()=>{
+  const g=k=>$("#p-"+k).value.trim();
+  try{
+    await api("prestamos","POST",{id:g("id"),libro:g("libro"),cedula:g("cedula"),fecha:g("fecha"),entrega:g("entrega")});
+    $("#dlg-p").close();["id","cedula"].forEach(k=>$("#p-"+k).value="");$("#p-cli").textContent="";aviso("Préstamo registrado");pintarPrest();
+  }catch(e){aviso(e.message)}
+};
+async function pFact(){pintarFact(await api("facturas"))}
+function pintarFact(p){
+  $("#vista").innerHTML=tabla(["Factura","Préstamo","Cliente","Monto","Emisión","Estado",""],p.map(x=>`<tr><td>${esc(x.id)}</td>
+    <td>${esc(x.prestamo)}</td><td>${esc(x.cliente)}</td><td><b>${cop(x.monto)}</b></td><td>${x.fecha}</td><td>${tag(x.pagada,"Pagada","Pendiente")}</td>
+    <td style="white-space:nowrap"><button class="mini" data-p="${esc(x.id)}" data-m="${x.monto}" data-e="${x.pagada}">${x.pagada?"Marcar pendiente":"Marcar pagada"}</button>
+    <button class="del" title="Eliminar" data-x="${esc(x.id)}">${ico("trash")}</button></td></tr>`));
+  document.querySelectorAll("[data-p]").forEach(b=>b.onclick=async()=>{
+    try{pintarFact(await api("facturas","PUT",{id:b.dataset.p,monto:b.dataset.m,pagada:b.dataset.e!=="true"}));aviso("Factura actualizada")}catch(e){aviso(e.message)}});
+  document.querySelectorAll("[data-x]").forEach(b=>b.onclick=async()=>{
+    if(!confirm("¿Eliminar esta factura?"))return;
+    try{pintarFact(await api("facturas?id="+encodeURIComponent(b.dataset.x),"DELETE"));aviso("Factura eliminada")}catch(e){aviso(e.message)}});
+}
+async function pCli(){
+  $("#acc").insertAdjacentHTML("afterbegin",`<button class="btn" id="nc">${ico("plus")}Nuevo cliente</button>`);
+  $("#nc").onclick=()=>$("#dlg-c").showModal();pintarCli(await api("clientes"));
+}
+function pintarCli(p){
+  $("#vista").innerHTML=tabla(["Cédula","Cliente","Préstamos activos","Estado",""],p.map(x=>`<tr><td>${esc(x.cedula)}</td><td><b>${esc(x.nombre)}</b></td><td>${x.activos}</td>
+    <td>${x.bloqueado?`<span class="tag" style="background:rgba(239,68,68,.15);color:var(--rd)">Bloqueado</span><br><small style="color:var(--mu)">${esc(x.motivo)}</small>`:`<span class="tag t-ok">Habilitado</span>`}</td>
+    <td><button class="mini" data-cli="${esc(x.cedula)}" data-b="${x.bloqueado}">${x.bloqueado?"Desbloquear":"Bloquear"}</button></td></tr>`));
+  document.querySelectorAll("[data-cli]").forEach(b=>b.onclick=async()=>{
+    const bloq=b.dataset.b!=="true";let motivo="";
+    if(bloq){motivo=prompt("Motivo del bloqueo:","No entregó a tiempo")||"";if(!motivo)return}
+    try{pintarCli(await api("clientes","PUT",{cedula:b.dataset.cli,bloqueado:bloq,motivo}));aviso(bloq?"Cliente bloqueado":"Cliente habilitado")}catch(e){aviso(e.message)}});
+}
+$("#c-cancelar").onclick=()=>$("#dlg-c").close();
+$("#c-guardar").onclick=async()=>{
+  const g=k=>$("#c-"+k).value.trim();
+  try{pintarCli(await api("clientes","POST",{cedula:g("cedula"),nombres:g("nombres"),apellidos:g("apellidos")}));
+    $("#dlg-c").close();["cedula","nombres","apellidos"].forEach(k=>$("#c-"+k).value="");aviso("Cliente registrado")}catch(e){aviso(e.message)}
+};
+async function pUsu(){
+  if(sesion.rol==="ADMINISTRADOR"){
+    $("#acc").insertAdjacentHTML("afterbegin",`<button class="btn" id="nu">${ico("plus")}Nuevo usuario</button>`);
+    $("#nu").onclick=()=>$("#dlg-u").showModal();
+  }
+  pintarUsu(await api("usuarios"));
+}
+function pintarUsu(p){
+  $("#vista").innerHTML=tabla(["Usuario","Rol",""],p.map(x=>`<tr><td><b>${esc(x.usuario)}</b></td><td><span class="tag t-ac">${esc(x.rol)}</span></td>
+    <td>${x.usuario===sesion.usuario?"":`<button class="del" title="Eliminar" data-u="${esc(x.usuario)}">${ico("trash")}</button>`}</td></tr>`));
+  document.querySelectorAll("button.del[data-u]").forEach(b=>b.onclick=async()=>{
+    if(!confirm("¿Eliminar al usuario "+b.dataset.u+"?"))return;
+    try{pintarUsu(await api("usuarios?usuario="+encodeURIComponent(b.dataset.u),"DELETE"));aviso("Usuario eliminado")}catch(e){aviso(e.message)}
+  });
+}
+$("#u-cancelar").onclick=()=>$("#dlg-u").close();
+$("#u-guardar").onclick=async()=>{
+  try{
+    pintarUsu(await api("usuarios","POST",{usuario:$("#u-nombre").value,clave:$("#u-clave").value,rol:$("#u-rol").value}));
+    $("#dlg-u").close();$("#u-nombre").value=$("#u-clave").value="";aviso("Usuario creado");
+  }catch(e){aviso(e.message)}
+};
+</script>
+</body>
+</html>

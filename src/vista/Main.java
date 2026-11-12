@@ -37,16 +37,12 @@ public class Main {
 
             GestionPrestamos gestionPrestamos = new GestionPrestamos(gestionLibreria);
 
-            LoginDialog loginDialog = new LoginDialog(gestionUsuarios);
-            loginDialog.setLocationRelativeTo(null);
-            loginDialog.setVisible(true);
-
-            Usuario usuario = loginDialog.getUsuarioAutenticado();
-            if (usuario != null) {
-                MainWindow mainWindow = new MainWindow(
-                        usuario, gestionUsuarios, gestionLibreria, gestionPrestamos);
-                mainWindow.setLocationRelativeTo(null);
-                mainWindow.setVisible(true);
+            try {
+                new ServidorWeb(gestionUsuarios, gestionLibreria, gestionPrestamos, new servicios.GestionClientes()).iniciar(8080);
+                java.awt.Desktop.getDesktop().browse(java.net.URI.create("http://localhost:8080"));
+                System.out.println("Jane Library lista en http://localhost:8080");
+            } catch (Exception ex) {
+                System.err.println("No se pudo iniciar el servidor web: " + ex.getMessage());
             }
         });
     }
